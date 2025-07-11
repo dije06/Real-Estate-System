@@ -1,0 +1,233 @@
+{
+	"info": {
+		"_postman_id": "5b84ac77-c186-4603-8bbb-c82640282859",
+		"name": "Real Estate System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11930344",
+		"_collection_link": "https://software-house-team.postman.co/workspace/Software-House-Team-Workspace~8f9de05d-5f19-470a-8e2c-767311fe0db1/collection/11930344-5b84ac77-c186-4603-8bbb-c82640282859?action=share&source=collection_link&creator=11930344"
+	},
+	"item": [
+		{
+			"name": "Public API",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Alice\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6002/public-api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6002",
+							"path": [
+								"public-api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Listing",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user_id\": 1,\r\n  \"listing_type\": \"rent\",\r\n  \"price\": 6500\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6002/public-api/listings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6002",
+							"path": [
+								"public-api",
+								"listings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Listings",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user_id\": 1,\r\n  \"listing_type\": \"rent\",\r\n  \"price\": 6500\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6002/public-api/listings?user_id=&page_num=1&page_size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6002",
+							"path": [
+								"public-api",
+								"listings"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": ""
+								},
+								{
+									"key": "page_num",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Internal API",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6001/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6001",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6001/users/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6001",
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"name\": \"Alice\" \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6001/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6001",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Listing Internal API",
+			"item": [
+				{
+					"name": "Get All Listings",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Create Listing",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user_id\": 1,\r\n  \"listing_type\": \"rent\",\r\n  \"price\": 6500\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6000/listings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6000",
+							"path": [
+								"listings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

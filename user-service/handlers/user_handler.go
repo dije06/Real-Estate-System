@@ -35,7 +35,8 @@ func (h *UserHandler) GetUsers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"users": users,
+		"result": true,
+		"users":  users,
 	})
 }
 
@@ -51,7 +52,8 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"user": user,
+		"result": true,
+		"user":   user,
 	})
 }
 
@@ -69,5 +71,8 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, map[string]interface{}{"user": user})
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"result": true,
+		"user":   user,
+	})
 }
