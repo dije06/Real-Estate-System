@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  user-db:
+    image: postgres:14
+    container_name: user-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  listing-db:
+    image: postgres:14
+    container_name: listing-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - listing_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    depends_on:
+      user-db:
+        condition: service_healthy
+    env_file:
+      - ./user-service/.env
+    ports:
+      - "6001:6001"
+
+  listing-service:
+    build:
+      context: ./listing-service
+    container_name: listing-service
+    depends_on:
+      listing-db:
+        condition: service_healthy
+    env_file:
+      - ./listing-service/.env
+    ports:
+      - "6000:6000"
+
+  public-api:
+    build:
+      context: ./public-api
+    container_name: public-api
+    depends_on:
+      - user-service
+      - listing-service
+      - redis
+    env_file:
+      - ./public-api/.env
+    ports:
+      - "6002:6002"
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  user_db_data:
+  listing_db_data:
