@@ -34,10 +34,10 @@ func SeedListings(db *gorm.DB) {
 		return
 	}
 
-	// if count > 0 {
-	// 	fmt.Println("Listings already seeded.")
-	// 	return
-	// }
+	if count > 0 {
+		fmt.Println("Listings already seeded.")
+		return
+	}
 
 	rand.Seed(time.Now().UnixNano())
 	now := time.Now().UnixMicro()

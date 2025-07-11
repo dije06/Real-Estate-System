@@ -36,10 +36,10 @@ func SeedUsers(db *gorm.DB) {
 	}
 
 	// Skip seeding if already populated
-	// if count > 0 {
-	// 	fmt.Println("Users already seeded.")
-	// 	return
-	// }
+	if count > 0 {
+		fmt.Println("Users already seeded.")
+		return
+	}
 
 	// Proceed with seeding if empty
 	fmt.Println("Seeding users...")
