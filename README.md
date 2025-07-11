@@ -1,210 +1,126 @@
 # Real Estate Microservices System
 
-A containerized Golang-based microservices system using Echo web framework for managing users, property listings, and routing through a public API gateway. The system includes PostgreSQL databases for each core service, Redis-based rate limiting, and complete unit + integration test coverage.
-
----
-
-## Services Overview
-
-Service: `user-service`
-- Purpose: Manages user data and exposes user CRUD endpoints
-- Port: `6001`
-- Database: PostgreSQL (`user-db` on port `5432`)
-
-Service: `listing-service`
-- Purpose: Manages real estate property listings
-- Port: `6000`
-- Database: PostgreSQL (`listing-db` on port `5433`)
-
-Service: `public-api`
-- Purpose: Acts as a gateway between frontend clients and internal services, handling request forwarding and enrichment
-- Port: `6002`
-- Depends on: `user-service`, `listing-service`, `redis`
-
-Service: `redis`
-- Purpose: Rate-limiting for public API routes
-- Port: `6379`
-
----
+A containerized microservices-based backend system written in Go (Golang) using the Echo framework. This project manages users, property listings, and a public-facing API layer through isolated services. It fulfills the full requirements of the Backend Tech Challenge.
 
 ## Project Structure
 
-This project is divided into three main microservices with separate handlers, models, repositories, seeders, tests, and `.env` configurations.
-
-Root structure:
-
+```
 real-estate-system/
-- docker-compose.yaml
-- README.md
-- .gitignore
-- postman_collection.json
+├── user-service/          - Handles user CRUD operations  
+├── listing-service/       - Handles property listing creation and retrieval  
+├── public-api/            - Public-facing API layer (gateway)  
+├── docker-compose.yaml    - Orchestrates all services and databases  
+├── .env.example           - Environment variable template  
+└── README.md              - This file
+```
 
-user-service/
-- .env (ignored)
-- .env.example
-- Dockerfile
-- main.go
-- go.mod, go.sum
-- handlers/
-  - user_handler.go
-  - tests/user_handler_test.go
-- models/
-  - user.go
-- repository/
-  - user_repository.go
-  - interfaces/user_repository_interface.go
-  - mocks/user_repository_mock.go
-  - tests/user_repository_test.go
-- seeders/
-  - user_seed.go
+## Getting Started
 
-listing-service/
-- .env (ignored)
-- .env.example
-- Dockerfile
-- main.go
-- go.mod, go.sum
-- handlers/
-  - listing_handler.go
-  - tests/listing_handler_test.go
-- models/
-  - listing.go
-- repository/
-  - listing_repository.go
-  - interfaces/listing_repository_interface.go
-  - mocks/listing_repository_mock.go
-  - tests/listing_repository_test.go
-- seeders/
-  - listing_seed.go
+### Prerequisites
 
-public-api/
-- .env (ignored)
-- .env.example
-- Dockerfile
-- main.go
-- go.mod, go.sum
-- handlers/
-  - public_handler.go
-  - tests/public_handler_test.go
-- middleware/
-  - rate_limiter.go
+- Go 1.21+
+- Docker
+- make (optional, for simplified CLI usage)
 
----
+### Quickstart with Docker Compose
 
-## Environment Setup
-
-Clone the repo:
 ```bash
+# Clone the repository
 git clone https://github.com/dije06/Real-Estate-System.git
-cd real-estate-system
+cd Real-Estate-System
+
+# Copy env templates
+cp .env.example .env
+
+# Start all services
+docker-compose up --build
 ```
 
-Set up `.env` files for each service:
+## Microservices Overview
 
-user-service/.env:
-```
-DB_HOST=user-db
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=postgres
-DB_SSLMODE=disable
-DB_TIMEZONE=UTC
-```
+### 1. User Service (`localhost:6001`)
 
-listing-service/.env:
-```
-DB_HOST=listing-db
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=postgres
-DB_SSLMODE=disable
-DB_TIMEZONE=UTC
-```
+Manages users.
 
-public-api/.env:
-```
-USER_SERVICE_URL=http://user-service:6001
-LISTING_SERVICE_URL=http://listing-service:6000
-REDIS_HOST=redis
-REDIS_PORT=6379
-```
+- `GET /users`: Paginated list of users  
+- `GET /users/:id`: Retrieve a user by ID  
+- `POST /users`: Create a user using `application/x-www-form-urlencoded`
 
----
+### 2. Listing Service (`localhost:6000`)
 
-## Running the Application
+Manages listings.
 
-Build and run all services:
+- `GET /listings`: Paginated listings, optional filter by `user_id`  
+- `POST /listings`: Create a listing using `application/x-www-form-urlencoded`
+
+### 3. Public API (`localhost:6002`)
+
+Gateway for frontend/mobile clients.
+
+- `GET /public-api/listings`: Listings with user detail  
+- `POST /public-api/users`: Create user (JSON)  
+- `POST /public-api/listings`: Create listing (JSON)
+
+## Example API Calls
+
+### Create User (Internal Service)
+
 ```bash
-docker compose up --build
+curl -X POST http://localhost:6001/users \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "name=John Doe"
 ```
 
-Stop and remove volumes:
+### Create Listing (Internal Service)
+
 ```bash
-docker compose down -v
+curl -X POST http://localhost:6000/listings \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "user_id=1" \
+  -d "listing_type=rent" \
+  -d "price=5000"
 ```
 
----
+### Public API - Create User
 
-## Public API Endpoints
+```bash
+curl -X POST http://localhost:6002/public-api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe"}'
+```
 
-- `POST /public-api/users`: Forwards to user-service to create a user
-- `POST /public-api/listings`: Forwards to listing-service to create a listing
-- `GET /public-api/listings`: Retrieves listings and enriches them with user info
+### Public API - Create Listing
 
----
+```bash
+curl -X POST http://localhost:6002/public-api/listings \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 1, "listing_type": "rent", "price": 6000}'
+```
 
-## Internal Service API Endpoints
+### Architecture
 
-### user-service
-- `GET /users?page_num=&page_size=`: Paginated list of users
-- `GET /users/:id`: Get single user by ID
-- `POST /users`: Create new user
+| Component        | Description                                       |
+|------------------|---------------------------------------------------|
+| `user-service`   | Handles users and uses its own PostgreSQL DB      |
+| `listing-service`| Handles listings and uses its own PostgreSQL DB   |
+| `public-api`     | Acts as the only entry point for external clients |
+| `redis`          | Rate limiting support for public API              |
+| `docker-compose` | Spins up all services with one command            |
 
-### listing-service
-- `GET /listings?page_num=&page_size=&user_id=`: Paginated list of listings (with optional user filter)
-- `POST /listings`: Create new listing
+### REST API Contract Compliance
 
----
+| Endpoint                   | Required Content-Type              | Implemented As                        |
+|----------------------------|------------------------------------|---------------------------------------|
+| `POST /users`              | `application/x-www-form-urlencoded`| Uses `c.FormValue("name")`            |
+| `POST /listings`           | `application/x-www-form-urlencoded`|  Uses `c.FormValue(...)`              |
+| `POST /public-api/users`   | `application/json`                 |  Uses `c.Bind()`                      |
+| `POST /public-api/listings`| `application/json`                 |  Uses `c.Bind()`                      |
 
 ## Testing
 
-To run tests:
-```bash
-cd [service-folder]
-go test -v -cover ./...
-```
+- Use the included Postman collection (`RealEstateAPI.postman_collection.json`) to test endpoints  
+- Unit and integration tests are located under each service's `tests/` directory
 
-Generate and open coverage report:
-```bash
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-```
+## Acknowledgements
 
----
-
-## Postman Collection
-
-This repository includes a ready-to-use Postman collection:
-- File: `Real Estate System.postman_collection.json`
-- Covers all public API routes
-- Includes sample requests and expected responses
-
-You can import this file into Postman to test:
-- User creation
-- Listing creation
-- Listing retrieval with user enrichment
-
----
-
-## Features
-
-- Full coverage for handlers and repositories using `testify` and `sqlmock`
-- PostgreSQL databases containerized and isolated per service
-- Redis-based rate limiting applied to public API
-- Modular folder structure with dedicated tests and seeders
-- Environment-variable driven config using Docker `env_file`
-- Health checks using `pg_isready` before service startup
-- Postman collection for API testing and demonstration
-
+Built with love to demonstrate clean microservices design using Go and Echo.
