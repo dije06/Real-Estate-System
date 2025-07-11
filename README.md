@@ -164,7 +164,6 @@ docker compose down -v
 
 ### listing-service
 - `GET /listings?page_num=&page_size=&user_id=`: Paginated list of listings (with optional user filter)
-- `GET /listings/:id`: Get single listing by ID
 - `POST /listings`: Create new listing
 
 ---

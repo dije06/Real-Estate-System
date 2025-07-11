@@ -5,8 +5,6 @@ import (
 	"real-estate-system/user-service/models"
 	repository "real-estate-system/user-service/repository/interfaces"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -58,20 +56,21 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
-	var user models.User
-	if err := c.Bind(&user); err != nil || strings.TrimSpace(user.Name) == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid user input")
+	name := c.FormValue("name")
+	if name == "" {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "name is required"})
 	}
 
-	now := time.Now().UnixMicro()
-	user.CreatedAt = now
-	user.UpdatedAt = now
-
-	if err := h.Repo.CreateUser(&user); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	user := models.User{
+		Name: name,
 	}
 
-	return c.JSON(http.StatusCreated, map[string]interface{}{
+	err := h.Repo.CreateUser(&user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusCreated, echo.Map{
 		"result": true,
 		"user":   user,
 	})
